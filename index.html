@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kembara Pulau Jata - Seaside Adventure</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Warna Latar Belakang & Stil Sederhana Pastel */
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background: linear-gradient(180deg, #bae6fd 0%, #7dd3fc 40%, #e0f2fe 85%, #fef3c7 100%);
+            color: #0f172a;
+            user-select: none;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .font-pixel {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* Soft Pixel Box & Sand Box Styles */
+        .pixel-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 4px solid #38bdf8;
+            box-shadow: 0 8px 0 0 rgba(14, 165, 233, 0.25);
+            border-radius: 16px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .pixel-box-sand {
+            background-color: #fffbeb;
+            border: 4px solid #fde047;
+            box-shadow: 0 6px 0 0 #d97706;
+            color: #78350f;
+            border-radius: 12px;
+        }
+
+        .pixel-btn {
+            position: relative;
+            display: inline-block;
+            padding: 12px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #ffffff;
+            background-color: #f59e0b;
+            border: 4px solid #b45309;
+            box-shadow: 0 4px 0 0 #78350f, inset -3px -3px 0px 0px #d97706;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .pixel-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .pixel-btn:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .pixel-btn-blue {
+            background-color: #0284c7;
+            border-color: #0369a1;
+            box-shadow: 0 4px 0 0 #0c4a6e;
+        }
+
+        .pixel-btn-green {
+            background-color: #10b981;
+            border-color: #047857;
+            box-shadow: 0 4px 0 0 #064e3b;
+        }
+
+        /* Butang Kuiz Interaktif (Hijau & Merah) */
+        .btn-correct {
+            background-color: #22c55e !important;
+            border-color: #15803d !important;
+            box-shadow: 0 4px 0 0 #14532d !important;
+            animation: pulseGreen 0.4s ease-in-out infinite alternate;
+        }
+
+        .btn-wrong {
+            background-color: #ef4444 !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 4px 0 0 #7f1d1d !important;
+            animation: shake 0.4s ease-in-out;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+
+        /* Animasi Pertukaran Skrin / Transisi */
+        .stage-fade-in {
+            animation: fadeInSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInSlide {
+            0% { opacity: 0; transform: translateY(15px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes waveFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1.5deg); }
+        }
+
+        .animate-wave {
+            animation: waveFloat 3.5s ease-in-out infinite;
+        }
+
+        @keyframes molePopUp {
+            0% { transform: translateY(100%); opacity: 0; }
+            15% { transform: translateY(0%); opacity: 1; }
+            85% { transform: translateY(0%); opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+
+        .mole-pop-active {
+            animation: molePopUp 2.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .hit-effect {
+            position: fixed;
+            animation: hitFloat 0.7s forwards;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes hitFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+        }
+
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .draggable-card {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-card:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between items-center p-2 sm:p-4 relative min-h-screen">
+
+    <!-- Audio Element BGM -->
+    <audio id="bgm-audio" loop preload="auto">
+        <source src="bgm.mp3" type="audio/mpeg">
+        <source src="bgm.wav" type="audio/wav">
+    </audio>
+
+    <!-- Visual Hiasan Pantai -->
+    <div class="fixed top-3 left-4 text-4xl opacity-60 animate-wave pointer-events-none">🌊</div>
+    <div class="fixed top-8 right-8 text-5xl opacity-50 animate-wave pointer-events-none" style="animation-delay: 1.5s;">☁️</div>
+    <div class="fixed bottom-2 left-2 text-6xl opacity-60 pointer-events-none">🌴</div>
+    <div class="fixed bottom-2 right-2 text-6xl opacity-60 pointer-events-none">🏝️</div>
+
+    <!-- Papan Skor Utama -->
+    <header class="w-full max-w-4xl pixel-box p-3 mb-3 flex flex-wrap justify-between items-center gap-2 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 bg-amber-300 border-2 border-amber-100 rounded-xl flex items-center justify-center font-pixel text-2xl shadow-sm">
+                🌺
+            </div>
+            <div>
+                <h1 class="font-pixel text-xs sm:text-sm text-sky-700 tracking-wide">KEMBARA PULAU JATA</h1>
+                <p class="text-xs text-amber-800 tracking-wider">MODUL PENTAKSIRAN SEJARAH TAHUN 5</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3 font-pixel text-xs">
+            <div class="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+                <span class="text-amber-600">⭐ SKOR:</span>
+                <span id="player-score" class="text-amber-800">0000</span>
+            </div>
+            <button id="bgm-toggle" onclick="game.toggleBGM()" class="bg-sky-100 hover:bg-sky-200 px-2.5 py-1.5 rounded-lg border border-sky-300 text-sm text-sky-800" title="Muzik Latar (BGM)">
+                🎵
+            </button>
+            <button id="sound-toggle" onclick="game.toggleSound()" class="bg-sky-100 hover:bg-sky-200 px-2.5 py-1.5 rounded-lg border border-sky-300 text-sm text-sky-800" title="Kesan Bunyi">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Stage -->
+    <main id="game-container" class="w-full max-w-4xl flex-1 flex flex-col justify-center items-center relative z-20 my-auto">
+        
+        <!-- SCREEN 0: INTRO STORY -->
+        <section id="screen-intro" class="w-full pixel-box p-5 sm:p-7 text-center my-auto stage-fade-in">
+            <div class="max-w-2xl mx-auto space-y-4">
+                <div class="inline-block px-3 py-1 bg-sky-100 border border-sky-300 rounded-full text-sky-800 font-pixel text-[10px]">
+                    🏝️ PANTAI SEJARAH TAHUN 5
+                </div>
+                
+                <h2 class="font-pixel text-sm sm:text-lg text-sky-700 leading-relaxed">
+                    SELAMAT DATANG KE KEMBARA PULAU JATA!
+                </h2>
+
+                <div class="py-1">
+                    <div class="w-24 h-24 mx-auto mb-2 bg-sky-200 rounded-full border-4 border-amber-300 flex items-center justify-center overflow-hidden animate-wave shadow-md">
+                        <img src="hero-character.png" alt="Wira Jata" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%237dd3fc\'/><circle cx=\'50\' cy=\'40\' r=\'25\' fill=\'%23fde047\'/><rect x=\'30\' y=\'65\' width=\'40\' height=\'35\' fill=\'%230284c7\'/><circle cx=\'40\' cy=\'35\' r=\'4\' fill=\'%23000\'/><circle cx=\'60\' cy=\'35\' r=\'4\' fill=\'%23000\'/><path d=\'M 40 48 Q 50 58 60 48\' stroke=\'%23000\' stroke-width=\'3\' fill=\'none\'/></svg>'">
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-lg mx-auto">
+                        "Ombak lautan Moana telah menaburkan maklumat <strong class="text-amber-700">Jata Negara Malaysia</strong> di pesisir pantai! Mari ketuk lambang-lambang pantas, susun sejarah garis masa, dan buktikan pengetahuan anda!"
+                    </p>
+                </div>
+
+                <div class="pixel-box-sand p-4 text-left text-xs sm:text-sm space-y-1 font-sans">
+                    <p class="text-amber-950 font-bold font-pixel text-xs mb-1">🎮 PERATURAN & PENTAKSIRAN SEJARAH:</p>
+                    <ul class="list-disc list-inside space-y-1 text-amber-950">
+                        <li><strong>Tahap 1: Ketuk Busut Pasir (Whack Fast)</strong> - Ketuk lambang yang sepadan dengan soalan. Bebas mencuba tanpa risau mati!</li>
+                        <li><strong>Tahap 2: Pembina Garis Masa Sejarah</strong> - Tarik (*drag*) & lepas kad gambar Jata mengikut penerangan tahun sejarah!</li>
+                        <li><strong>Tahap 3: Ujian Warna Negeri, Glosari & Slogan</strong> - Uji pengetahuan 4 jalur warna perisai, glosari kata kunci, serta kepentingan cogan kata <i>"Bersekutu Bertambah Mutu"</i>.</li>
+                    </ul>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="game.startStage(1)" class="pixel-btn pixel-btn-green text-xs sm:text-sm py-3 px-8">
+                        MULA KEMBARA PANTAI ▶
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 1: WHACK-A-MOLE -->
+        <section id="screen-stage1" class="w-full pixel-box p-4 sm:p-5 hidden flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-2 pb-2 border-b border-sky-200">
+                <span class="font-pixel text-xs text-sky-700">TAHAP 1: KETUK BUSUT PASIR PANTAI</span>
+                <span class="font-pixel text-[10px] text-amber-800 bg-amber-100 px-2 py-1 rounded border border-amber-300">⚡ BEBAS MASA & TANPA BATASAN NYAWA!</span>
+            </div>
+
+            <div id="s1-card" class="w-full bg-sky-50 border-2 border-sky-300 p-3.5 rounded-xl text-center mb-4 shadow-sm transition-all">
+                <p id="s1-question-title" class="text-[11px] text-sky-600 font-pixel mb-1">SOALAN 1/8</p>
+                <h3 id="s1-question" class="text-xs sm:text-base font-bold text-slate-800">
+                    "Ketuk lambang yang melambangkan KEBERANIAN!"
+                </h3>
+            </div>
+
+            <!-- Whack Grid Canvas -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 w-full max-w-2xl my-1 relative" id="mole-grid-container">
+                <script>
+                    for(let i=0; i<6; i++){
+                        document.write(`
+                        <div id="mound-${i}" class="relative bg-amber-200/90 border-4 border-amber-400 h-40 sm:h-44 rounded-2xl overflow-hidden flex items-end justify-center pb-1 shadow-sm transition-all">
+                            <div class="w-full h-8 bg-amber-300 border-t-2 border-amber-400 flex justify-around items-center px-2">
+                                <span class="text-xs">🐚</span><span class="text-xs">🦀</span><span class="text-xs">🐚</span>
+                            </div>
+                            <div id="mole-${i}" class="mole-container absolute bottom-0 w-32 h-36 flex flex-col items-center justify-center cursor-pointer hidden p-1" onclick="game.whack(${i}, event)">
+                                <img id="mole-img-${i}" src="" class="w-20 h-20 object-contain filter drop-shadow-md pointer-events-none" alt="Symbol">
+                                <span id="mole-text-${i}" class="text-[9px] font-pixel text-slate-800 bg-white/95 border border-slate-400 px-1.5 py-0.5 rounded mt-1 text-center leading-tight w-full break-words pointer-events-none shadow-sm"></span>
+                            </div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
+
+            <div id="s1-feedback" class="mt-3 font-pixel text-xs h-6 text-center text-sky-700">
+                Lambang akan keluar dari busut pasir! Ketuk jawapan betul!
+            </div>
+        </section>
+
+        <!-- STAGE 2: SEJARAH & PERUBAHAN JATA (DRAG & DROP + AUTO RESET) -->
+        <section id="screen-stage2" class="w-full pixel-box p-4 sm:p-5 hidden flex-col">
+            <div class="w-full flex justify-between items-center mb-2 pb-2 border-b border-sky-200">
+                <span class="font-pixel text-xs text-sky-700">TAHAP 2: PEMBINA GARIS MASA JATA</span>
+                <span class="font-pixel text-[10px] text-amber-700">SEJARAH EVOLUSI</span>
+            </div>
+
+            <p class="text-xs text-slate-600 mb-3 text-center">
+                Tarik (*drag*) atau tekan kad Jata di bawah, kemudian letakkan dalam kotak <strong class="text-sky-700">Tahun Sejarah & Perubahan Jata</strong> yang betul!
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div class="drop-zone pixel-box p-3 bg-sky-50 border-2 border-dashed border-sky-400 rounded-xl flex flex-col items-center" data-year="1948">
+                    <div class="font-pixel text-[11px] text-amber-800 mb-1">📌 TAHUN 1948</div>
+                    <p class="text-[11px] text-slate-600 text-center mb-2">5 Keris, Bintang Pecah 11, Slogan Jawi & Bahasa Inggeris ("Unity is Strength").</p>
+                    <div class="slot-target w-full h-24 border-2 border-slate-300 rounded-lg bg-white flex items-center justify-center p-2 cursor-pointer hover:border-amber-400 transition-all">
+                        <span class="text-slate-400 font-pixel text-[10px] pointer-events-none">LETAK GAMBAR 1948</span>
+                    </div>
+                </div>
+
+                <div class="drop-zone pixel-box p-3 bg-sky-50 border-2 border-dashed border-sky-400 rounded-xl flex flex-col items-center" data-year="1963">
+                    <div class="font-pixel text-[11px] text-amber-800 mb-1">📌 TAHUN 1963</div>
+                    <p class="text-[11px] text-slate-600 text-center mb-2">Penubuhan Malaysia: Singapura, Sarawak & Sabah ditambah. Slogan BM.</p>
+                    <div class="slot-target w-full h-24 border-2 border-slate-300 rounded-lg bg-white flex items-center justify-center p-2 cursor-pointer hover:border-amber-400 transition-all">
+                        <span class="text-slate-400 font-pixel text-[10px] pointer-events-none">LETAK GAMBAR 1963</span>
+                    </div>
+                </div>
+
+                <div class="drop-zone pixel-box p-3 bg-sky-50 border-2 border-dashed border-sky-400 rounded-xl flex flex-col items-center" data-year="1965">
+                    <div class="font-pixel text-[11px] text-amber-800 mb-1">📌 TAHUN 1965</div>
+                    <p class="text-[11px] text-slate-600 text-center mb-2">Singapura digugurkan dan digantikan dengan lambang Bunga Raya.</p>
+                    <div class="slot-target w-full h-24 border-2 border-slate-300 rounded-lg bg-white flex items-center justify-center p-2 cursor-pointer hover:border-amber-400 transition-all">
+                        <span class="text-slate-400 font-pixel text-[10px] pointer-events-none">LETAK GAMBAR 1965</span>
+                    </div>
+                </div>
+
+                <div class="drop-zone pixel-box p-3 bg-slate-950/5 border-2 border-dashed border-sky-400 rounded-xl flex flex-col items-center" data-year="Kini">
+                    <div class="font-pixel text-[11px] text-amber-800 mb-1">📌 JATA KINI</div>
+                    <p class="text-[11px] text-slate-600 text-center mb-2">Harimau lebih realistik, Pulau Pinang, Sabah & Sarawak dikemaskini. Bintang 14.</p>
+                    <div class="slot-target w-full h-24 border-2 border-slate-300 rounded-lg bg-white flex items-center justify-center p-2 cursor-pointer hover:border-amber-400 transition-all">
+                        <span class="text-slate-400 font-pixel text-[10px] pointer-events-none">LETAK GAMBAR KINI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kad Pilihan Gambar (Drag and Drop Pool) -->
+            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                <p class="font-pixel text-xs text-center text-amber-800 mb-2.5">TARIK ATAU TEKAN GAMBAR JATA UNTUK DIPADANKAN:</p>
+                <div id="jata-card-pool" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 min-h-[80px]"></div>
+            </div>
+
+            <div class="mt-3 text-center flex flex-col items-center gap-2">
+                <div id="s2-feedback" class="font-pixel text-xs text-sky-700 min-h-[20px]"></div>
+                <button id="s2-verify-btn" onclick="game.verifyStage2()" class="pixel-btn pixel-btn-blue text-xs py-3 px-6">
+                    DISAHKAN GARIS MASA ✔
+                </button>
+            </div>
+        </section>
+
+        <!-- STAGE 3: WARNA NEGERI, GLOSARI & SLOGAN -->
+        <section id="screen-stage3" class="w-full pixel-box p-4 sm:p-5 hidden flex-col">
+            <div class="w-full flex justify-between items-center mb-2 pb-2 border-b border-sky-200">
+                <span class="font-pixel text-xs text-sky-700">TAHAP 3: NEGERI, GLOSARI & COGAN KATA</span>
+                <span id="s3-counter" class="font-pixel text-xs text-amber-700">SOALAN 1/8</span>
+            </div>
+
+            <div class="max-w-xl mx-auto w-full space-y-3.5">
+                <div id="s3-card-box" class="bg-sky-50 border-2 border-sky-300 p-4 rounded-xl text-center shadow-sm transition-all duration-300">
+                    <span id="s3-category-tag" class="text-[10px] font-pixel text-teal-800 bg-teal-100 px-2 py-1 rounded border border-teal-300">
+                        EMPAT JALUR WARNA NEGERI BERSEKUTU
+                    </span>
+                    <h3 id="s3-prompt" class="text-xs sm:text-base font-bold text-slate-800 mt-2 leading-relaxed">
+                        Warna Merah dan Kuning pada perisai merujuk kepada negeri mana?
+                    </h3>
+                </div>
+
+                <div id="s3-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+
+                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                    <span class="text-xl">📖</span>
+                    <div>
+                        <strong class="text-amber-800">Petunjuk Pentaksiran:</strong> Sentiasa baca soalan dengan teliti sebelum memilih jawapan!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL VICTORY SCREEN -->
+        <section id="screen-victory" class="w-full pixel-box p-5 text-center hidden flex-col items-center">
+            <div class="inline-block px-4 py-1 bg-amber-400 text-slate-900 font-pixel text-xs font-bold rounded mb-2">
+                PENTAKSIRAN TAMAT!
+            </div>
+            
+            <h2 class="font-pixel text-base sm:text-xl text-sky-700 mb-1">
+                KEPUTUSAN KEMBARA PULAU JATA!
+            </h2>
+            <p class="text-xs text-slate-600 max-w-md mx-auto mb-4">
+                Tahniah! Anda telah melengkapkan kesemua ujian tajuk Jata Negara Sejarah Tahun 5!
+            </p>
+
+            <div class="bg-white border-4 border-amber-300 p-5 rounded-2xl w-full max-w-md space-y-3 mb-5 shadow-sm">
+                <div class="w-16 h-16 mx-auto bg-amber-300 rounded-full border-4 border-amber-100 flex items-center justify-center text-3xl shadow-sm animate-bounce">
+                    🏆
+                </div>
+                <div>
+                    <div class="text-[11px] font-pixel text-slate-500">MARKAH KESELURUHAN</div>
+                    <div id="final-score" class="text-3xl font-pixel text-amber-600 mt-1">0000</div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-200 text-xs font-pixel space-y-1">
+                    <p id="assessment-grade" class="text-emerald-600 text-sm">GRED: AMAT CEMERLANG ⭐⭐⭐</p>
+                    <p id="assessment-accuracy" class="text-slate-600 text-[10px]">Ketepatan Pentaksiran: 100%</p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="pixel-btn pixel-btn-green py-3 px-8 text-xs sm:text-sm">
+                MAIN SEMULA 🔄
+            </button>
+        </section>
+
+    </main>
+
+    <footer class="w-full max-w-4xl text-center py-2 text-[11px] text-sky-800 font-bold relative z-20">
+        Permainan Pendidikan Sejarah Tahun 5 • Dokumen Standard Kurikulum Sekolah Rendah (DSKP)
+    </footer>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.bgmPlaying = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playPop() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(550, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playHit() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.09);
+                osc.frequency.setValueAtTime(783.99, now + 0.18);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.32);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.setValueAtTime(130, now + 0.15);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.25);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        // SVG Fallbacks Data Store
+        const SVG_FALLBACKS = {
+            'jata-1948': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#bae6fd"/><path d="M20 30 L50 15 L80 30 L80 70 L50 90 L20 70 Z" fill="#f59e0b" stroke="#d97706" stroke-width="3"/><text x="50" y="55" font-size="10" fill="#fff" text-anchor="middle" font-family="sans-serif">REKAAN A</text></svg>`,
+            'jata-1963': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#bae6fd"/><path d="M20 30 L50 15 L80 30 L80 70 L50 90 L20 70 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="3"/><text x="50" y="55" font-size="10" fill="#fff" text-anchor="middle">REKAAN B</text></svg>`,
+            'jata-1965': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#bae6fd"/><path d="M20 30 L50 15 L80 30 L80 70 L50 90 L20 70 Z" fill="#f87171" stroke="#dc2626" stroke-width="3"/><text x="50" y="55" font-size="10" fill="#fff" text-anchor="middle">REKAAN C</text></svg>`,
+            'jata-kini': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#bae6fd"/><path d="M20 30 L50 15 L80 30 L80 70 L50 90 L20 70 Z" fill="#34d399" stroke="#059669" stroke-width="3"/><text x="50" y="55" font-size="10" fill="#fff" text-anchor="middle">REKAAN D</text></svg>`,
+            'lambang-bintang-bulan': `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="40" fill="#fef08a"/><path d="M 40 25 A 25 25 0 1 0 65 70 A 30 30 0 1 1 40 25 Z" fill="#d97706"/><polygon points="65,30 68,38 77,38 70,43 73,52 65,46 57,52 60,43 53,38 62,38" fill="#d97706"/></svg>`,
+            'lambang-harimau': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#fde047" rx="10"/><text x="50" y="55" font-size="40" text-anchor="middle">🐯</text></svg>`,
+            'lambang-keris': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#f87171" rx="10"/><text x="50" y="55" font-size="35" text-anchor="middle">🗡️</text></svg>`,
+            'lambang-4warna': `<svg viewBox="0 0 100 100" class="w-full h-full"><g><rect x="10" y="20" width="20" height="60" fill="#ef4444"/><rect x="30" y="20" width="20" height="60" fill="#000000"/><rect x="50" y="20" width="20" height="60" fill="#ffffff"/><rect x="70" y="20" width="20" height="60" fill="#eab308"/></g></svg>`,
+            'lambang-pulau-pinang': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#38bdf8" rx="10"/><text x="50" y="55" font-size="35" text-anchor="middle">🌴</text></svg>`,
+            'lambang-melaka': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#4ade80" rx="10"/><text x="50" y="55" font-size="35" text-anchor="middle">🌳</text></svg>`,
+            'lambang-sabah-sarawak-bunga': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#fb7185" rx="10"/><text x="50" y="55" font-size="35" text-anchor="middle">🌺</text></svg>`,
+            'lambang-cogan-kata': `<svg viewBox="0 0 100 100" class="w-full h-full"><rect width="100" height="100" fill="#fbbf24" rx="10"/><text x="50" y="55" font-size="30" text-anchor="middle">📜</text></svg>`
+        };
+
+        class GameEngine {
+            constructor() {
+                this.score = 0;
+                this.totalAttempts = 0;
+                this.correctAttempts = 0;
+                
+                this.s1Questions = [
+                    { q: "Ketuk lambang yang melambangkan KEBERANIAN!", correctKey: 'lambang-harimau' },
+                    { q: "Ketuk lambang yang melambangkan NEGERI-NEGERI MELAYU TIDAK BERSEKUTU!", correctKey: 'lambang-keris' },
+                    { q: "Ketuk lambang yang melambangkan NEGERI-NEGERI MELAYU BERSEKUTU!", correctKey: 'lambang-4warna' },
+                    { q: "Ketuk lambang yang melambangkan AGAMA ISLAM SEBAGAI AGAMA PERSEKUTUAN DAN 13 BUAH NEGERI SERTA KERAJAAN PERSEKUTUAN!", correctKey: 'lambang-bintang-bulan' },
+                    { q: "Ketuk lambang yang melambangkan Jata Negeri MELAKA pada perisai!", correctKey: 'lambang-melaka' },
+                    { q: "Ketuk lambang yang melambangkan Jata Negeri PULAU PINANG!", correctKey: 'lambang-pulau-pinang' },
+                    { q: "Ketuk lambang yang melambangkan BUNGA KEBANGSAAN, NEGERI SABAH DAN SARAWAK!", correctKey: 'lambang-sabah-sarawak-bunga' },
+                    { q: "Ketuk lambang yang melambangkan semangat bekerjasama memupuk perpaduan!", correctKey: 'lambang-cogan-kata' }
+                ];
+                this.s1Index = 0;
+                this.s1PopCount = 0;
+                this.fastPopLoop = null;
+
+                this.s2State = { '1948': null, '1963': null, '1965': null, 'Kini': null };
+                this.selectedCard = null;
+
+                this.s3Questions = [
+                    {
+                        category: "EMPAT JALUR WARNA PERISAI",
+                        prompt: "Warna Merah dan Kuning pada perisai merujuk kepada negeri mana?",
+                        options: ["Selangor", "Pahang", "Perak", "Negeri Sembilan"],
+                        answer: "Selangor"
+                    },
+                    {
+                        category: "EMPAT JALUR WARNA PERISAI",
+                        prompt: "Warna Hitam dan Putih melambangkan negeri mana?",
+                        options: ["Pahang", "Perak", "Selangor", "Kedah"],
+                        answer: "Pahang"
+                    },
+                    {
+                        category: "EMPAT JALUR WARNA PERISAI",
+                        prompt: "Warna Hitam, Putih dan Kuning melambangkan negeri mana?",
+                        options: ["Perak", "Negeri Sembilan", "Kelantan", "Melaka"],
+                        answer: "Perak"
+                    },
+                    {
+                        category: "EMPAT JALUR WARNA PERISAI",
+                        prompt: "Warna Merah, Hitam dan Kuning melambangkan negeri mana?",
+                        options: ["Negeri Sembilan", "Selangor", "Perlis", "Terengganu"],
+                        answer: "Negeri Sembilan"
+                    },
+                    {
+                        category: "GLOSARI KATA KUNCI",
+                        prompt: "Apakah maksud 'BERSEKUTU' dalam dokumen Jata Negara?",
+                        options: [
+                            "Bersatu antara satu sama lain supaya jadi lebih kuat",
+                            "Menunjukkan keadaan yang sebenarnya",
+                            "Berlawanan antara satu sama lain",
+                            "Bekerja bersendirian tanpa bantuan"
+                        ],
+                        answer: "Bersatu antara satu sama lain supaya jadi lebih kuat"
+                    },
+                    {
+                        category: "GLOSARI KATA KUNCI",
+                        prompt: "Apakah maksud 'REALISTIK' dalam glosari Jata Negara?",
+                        options: [
+                            "Menunjukkan keadaan sebenarnya",
+                            "Mempunyai corak lukisan kartun",
+                            "Bersatu teguh bercerai roboh",
+                            "Warna yang sangat terang dan berkilau"
+                        ],
+                        answer: "Menunjukkan keadaan sebenarnya"
+                    },
+                    {
+                        category: "SLOGAN & KEDAULATAN NEGARA",
+                        prompt: "Apakah kepentingan mengamalkan cogan kata 'Bersekutu Bertambah Mutu'?",
+                        options: [
+                            "Mempererat perpaduan antara rakyat di Malaysia",
+                            "Memastikan negara sentiasa menang dalam sukan",
+                            "Mengurangkan bilangan negeri di Malaysia",
+                            "Menukar rekaan Jata Negara setiap tahun"
+                        ],
+                        answer: "Mempererat perpaduan antara rakyat di Malaysia"
+                    },
+                    {
+                        category: "SEJARAH JATA NEGARA",
+                        prompt: "Apakah perubahan yang dilakukan pada Jata Negara KINI?",
+                        options: [
+                            "Rekaan dua ekor harimau diubah lebih realistik & bintang pecah 14",
+                            "Singapura dimasukkan semula ke dalam perisai",
+                            "Cogan kata diubah ke bahasa Inggeris semula",
+                            "Lima bilah keris digantikan dengan pedang"
+                        ],
+                        answer: "Rekaan dua ekor harimau diubah lebih realistik & bintang pecah 14"
+                    }
+                ];
+                this.s3Index = 0;
+            }
+
+            toggleSound() {
+                sound.enabled = !sound.enabled;
+                document.getElementById('sound-toggle').innerText = sound.enabled ? '🔊' : '🔇';
+            }
+
+            toggleBGM() {
+                const audio = document.getElementById('bgm-audio');
+                if (sound.bgmPlaying) {
+                    audio.pause();
+                    sound.bgmPlaying = false;
+                    document.getElementById('bgm-toggle').innerText = '🎵';
+                } else {
+                    audio.play().then(() => {
+                        sound.bgmPlaying = true;
+                        document.getElementById('bgm-toggle').innerText = '🎶';
+                    }).catch(e => {
+                        console.log("Peringatan: Sila pastikan fail bgm.mp3 wujud dalam folder.");
+                    });
+                }
+            }
+
+            updateUI() {
+                document.getElementById('player-score').innerText = String(this.score).padStart(4, '0');
+            }
+
+            addScore(pts) {
+                this.score += pts;
+                this.correctAttempts++;
+                this.totalAttempts++;
+                this.updateUI();
+                sound.playCorrect();
+            }
+
+            registerMistake() {
+                this.totalAttempts++;
+                sound.playWrong();
+            }
+
+            switchScreen(screenId) {
+                ['screen-intro', 'screen-stage1', 'screen-stage2', 'screen-stage3', 'screen-victory'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (id === screenId) {
+                        el.classList.remove('hidden');
+                        el.classList.add('flex', 'stage-fade-in');
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex', 'stage-fade-in');
+                    }
+                });
+            }
+
+            startStage(stageNum) {
+                if (!sound.bgmPlaying) {
+                    this.toggleBGM();
+                }
+
+                if (stageNum === 1) {
+                    this.switchScreen('screen-stage1');
+                    this.initStage1();
+                } else if (stageNum === 2) {
+                    if(this.fastPopLoop) clearInterval(this.fastPopLoop);
+                    this.switchScreen('screen-stage2');
+                    this.initStage2();
+                } else if (stageNum === 3) {
+                    this.switchScreen('screen-stage3');
+                    this.initStage3();
+                } else if (stageNum === 4) {
+                    this.switchScreen('screen-victory');
+                    document.getElementById('final-score').innerText = String(this.score).padStart(4, '0');
+                    const accuracy = Math.round((this.correctAttempts / Math.max(1, this.totalAttempts)) * 100);
+                    document.getElementById('assessment-accuracy').innerText = `Ketepatan Pentaksiran: ${accuracy}%`;
+                }
+            }
+
+            // STAGE 1 LOGIC
+            initStage1() {
+                this.s1Index = 0;
+                this.loadS1Question();
+
+                if (this.fastPopLoop) clearInterval(this.fastPopLoop);
+                this.fastPopLoop = setInterval(() => {
+                    this.popRandomMole();
+                }, 1600);
+            }
+
+            loadS1Question() {
+                if (this.s1Index >= this.s1Questions.length) {
+                    if(this.fastPopLoop) clearInterval(this.fastPopLoop);
+                    document.getElementById('s1-feedback').innerText = "TAHAP 1 LENGKAP! BERPINDAH KE TAHAP 2...";
+                    document.getElementById('s1-feedback').className = "mt-3 font-pixel text-xs h-6 text-center text-emerald-600 animate-pulse";
+                    setTimeout(() => this.startStage(2), 1200);
+                    return;
+                }
+
+                this.s1PopCount = 0;
+                const currentQ = this.s1Questions[this.s1Index];
+                document.getElementById('s1-question-title').innerText = `SOALAN ${this.s1Index + 1}/${this.s1Questions.length}`;
+                document.getElementById('s1-question').innerText = `"${currentQ.q}"`;
+            }
+
+            popRandomMole() {
+                if (this.s1Index >= this.s1Questions.length) return;
+
+                this.s1PopCount++;
+
+                const holeIdx = Math.floor(Math.random() * 6);
+                const mole = document.getElementById(`mole-${holeIdx}`);
+                const img = document.getElementById(`mole-img-${holeIdx}`);
+                const text = document.getElementById(`mole-text-${holeIdx}`);
+
+                const currentQ = this.s1Questions[this.s1Index];
+                
+                // KEMASKINI: NAMA LAMBANG LENGKAP DI TAHAP 1
+                const labelsMap = {
+                    'lambang-harimau': 'Dua Harimau',
+                    'lambang-keris': '5 Bilah Keris',
+                    'lambang-4warna': 'Empat Jalur Warna',
+                    'lambang-bintang-bulan': 'Bintang Pecah 14 & Bulan Sabit',
+                    'lambang-melaka': 'Pokok Melaka',
+                    'lambang-pulau-pinang': 'Pokok Pinang & Jambatan',
+                    'lambang-sabah-sarawak-bunga': 'Jata Sabah, Sarawak & Bunga Raya',
+                    'lambang-cogan-kata': 'Cogan Kata "Bersekutu Bertambah Mutu"'
+                };
+
+                const pool = Object.keys(SVG_FALLBACKS);
+                const wrongPool = pool.filter(k => k !== currentQ.correctKey);
+
+                let selectedKey;
+
+                if (this.s1PopCount === 1) {
+                    selectedKey = wrongPool[Math.floor(Math.random() * wrongPool.length)];
+                } else if (this.s1PopCount === 2) {
+                    const isCorrect = Math.random() < 0.5;
+                    selectedKey = isCorrect ? currentQ.correctKey : wrongPool[Math.floor(Math.random() * wrongPool.length)];
+                } else {
+                    const isCorrect = Math.random() < 0.75;
+                    selectedKey = isCorrect ? currentQ.correctKey : wrongPool[Math.floor(Math.random() * wrongPool.length)];
+                }
+
+                img.src = `${selectedKey}.png`;
+                img.onerror = () => {
+                    img.onerror = null;
+                    img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(SVG_FALLBACKS[selectedKey]);
+                };
+
+                text.innerText = labelsMap[selectedKey] || selectedKey;
+                mole.dataset.key = selectedKey;
+
+                sound.playPop();
+
+                mole.classList.remove('hidden', 'mole-pop-active');
+                void mole.offsetWidth;
+                mole.classList.add('mole-pop-active');
+
+                setTimeout(() => {
+                    mole.classList.add('hidden');
+                }, 1900);
+            }
+
+            whack(holeIdx, event) {
+                const mole = document.getElementById(`mole-${holeIdx}`);
+                const mound = document.getElementById(`mound-${holeIdx}`);
+                if (mole.classList.contains('hidden')) return;
+
+                const hitKey = mole.dataset.key;
+                const currentQ = this.s1Questions[this.s1Index];
+
+                if (hitKey === currentQ.correctKey) {
+                    sound.playHit();
+                    this.addScore(150);
+                    mole.classList.add('hidden');
+                    
+                    this.showHitParticle(event.clientX, event.clientY, "+150 TEPAT!");
+                    mound.classList.add('border-emerald-500', 'bg-emerald-100');
+                    setTimeout(() => mound.classList.remove('border-emerald-500', 'bg-emerald-100'), 500);
+
+                    document.getElementById('s1-feedback').innerText = "🎯 KETUKAN TEPAT! SKOR +150!";
+                    document.getElementById('s1-feedback').className = "mt-3 font-pixel text-xs h-6 text-center text-emerald-600 animate-bounce";
+                    
+                    this.s1Index++;
+                    setTimeout(() => {
+                        document.getElementById('s1-feedback').className = "mt-3 font-pixel text-xs h-6 text-center text-sky-700";
+                        this.loadS1Question();
+                    }, 600);
+                } else {
+                    this.registerMistake();
+                    mole.classList.add('hidden');
+                    this.showHitParticle(event.clientX, event.clientY, "SALAH!");
+
+                    mound.classList.add('border-rose-400', 'bg-rose-100', 'shake-animation');
+                    setTimeout(() => mound.classList.remove('border-rose-400', 'bg-rose-100', 'shake-animation'), 500);
+
+                    document.getElementById('s1-feedback').innerText = "❌ TERSALAH KETUK! CUBA LAGI!";
+                    document.getElementById('s1-feedback').className = "mt-3 font-pixel text-xs h-6 text-center text-rose-600";
+                }
+            }
+
+            showHitParticle(x, y, text) {
+                const el = document.createElement('div');
+                el.className = "hit-effect " + (text.includes("+") ? "text-amber-500" : "text-rose-500");
+                el.innerText = text;
+                el.style.left = `${x - 20}px`;
+                el.style.top = `${y - 20}px`;
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 700);
+            }
+
+            // STAGE 2 LOGIC (DRAG & DROP + AUTO RESET IF WRONG)
+            initStage2() {
+                this.s2State = { '1948': null, '1963': null, '1965': null, 'Kini': null };
+                document.getElementById('s2-feedback').innerText = "";
+                this.renderStage2Pool();
+                this.setupDropZones();
+            }
+
+            renderStage2Pool() {
+                const poolContainer = document.getElementById('jata-card-pool');
+                poolContainer.innerHTML = '';
+                
+                const cards = [
+                    { id: 'jata-1948', realYear: '1948' },
+                    { id: 'jata-1963', realYear: '1963' },
+                    { id: 'jata-1965', realYear: '1965' },
+                    { id: 'jata-kini', realYear: 'Kini' }
+                ].sort(() => Math.random() - 0.5);
+
+                cards.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.id = `card-${card.id}`;
+                    cardEl.className = "draggable-card pixel-box p-3 bg-white rounded-xl flex flex-col items-center justify-center border-2 border-slate-300 hover:border-amber-400 transition-all shadow-sm";
+                    cardEl.draggable = true;
+                    cardEl.dataset.id = card.id;
+                    cardEl.dataset.realYear = card.realYear;
+
+                    cardEl.innerHTML = `
+                        <img src="${card.id}.png" class="w-16 h-16 object-contain pointer-events-none" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,' + encodeURIComponent(SVG_FALLBACKS['${card.id}'])">
+                    `;
+
+                    // Drag Events
+                    cardEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', JSON.stringify(card));
+                    });
+
+                    // Touch / Click Select Fallback
+                    cardEl.onclick = () => this.selectCardForClick(cardEl);
+
+                    poolContainer.appendChild(cardEl);
+                });
+            }
+
+            selectCardForClick(cardEl) {
+                sound.playHit();
+                document.querySelectorAll('.draggable-card').forEach(el => el.classList.remove('ring-4', 'ring-amber-400'));
+                cardEl.classList.add('ring-4', 'ring-amber-400');
+                this.selectedCard = {
+                    id: cardEl.dataset.id,
+                    realYear: cardEl.dataset.realYear,
+                    elementId: cardEl.id
+                };
+            }
+
+            setupDropZones() {
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    const target = zone.querySelector('.slot-target');
+                    const targetYear = zone.dataset.year;
+
+                    // Click to Place
+                    target.onclick = () => {
+                        if (this.selectedCard) {
+                            this.placeCardInZone(targetYear, this.selectedCard);
+                        }
+                    };
+
+                    // Drag Over & Drop Events
+                    target.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        target.classList.add('border-amber-400', 'bg-amber-50');
+                    });
+
+                    target.addEventListener('dragleave', () => {
+                        target.classList.remove('border-amber-400', 'bg-amber-50');
+                    });
+
+                    target.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        target.classList.remove('border-amber-400', 'bg-amber-50');
+                        const cardData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                        this.placeCardInZone(targetYear, cardData);
+                    });
+                });
+            }
+
+            placeCardInZone(yearSlot, cardData) {
+                if (this.s2State[yearSlot]) {
+                    const prevId = this.s2State[yearSlot];
+                    const prevCardEl = document.getElementById(`card-${prevId}`);
+                    if (prevCardEl) prevCardEl.classList.remove('hidden');
+                }
+
+                this.s2State[yearSlot] = cardData.id;
+
+                const sourceEl = document.getElementById(`card-${cardData.id}`) || (cardData.elementId ? document.getElementById(cardData.elementId) : null);
+                if (sourceEl) sourceEl.classList.add('hidden');
+
+                const zoneTarget = document.querySelector(`.drop-zone[data-year="${yearSlot}"] .slot-target`);
+                zoneTarget.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <img src="${cardData.id}.png" class="w-12 h-12 object-contain" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,' + encodeURIComponent(SVG_FALLBACKS['${cardData.id}'])">
+                        <span class="font-pixel text-[11px] text-emerald-600">DIPASANG ✔</span>
+                    </div>
+                `;
+
+                sound.playCorrect();
+                this.selectedCard = null;
+                document.querySelectorAll('.draggable-card').forEach(el => el.classList.remove('ring-4', 'ring-amber-400'));
+            }
+
+            verifyStage2() {
+                let correctCount = 0;
+                let wrongSlots = [];
+
+                ['1948', '1963', '1965', 'Kini'].forEach(year => {
+                    const expectedId = year === 'Kini' ? 'jata-kini' : `jata-${year}`;
+                    if (this.s2State[year] === expectedId) {
+                        correctCount++;
+                    } else if (this.s2State[year] !== null) {
+                        wrongSlots.push(year);
+                    }
+                });
+
+                const feedbackEl = document.getElementById('s2-feedback');
+
+                if (correctCount === 4) {
+                    this.addScore(400);
+                    feedbackEl.innerText = "🎯 TAHAP 2 LENGKAP! MEMASUKI TAHAP 3...";
+                    feedbackEl.className = "font-pixel text-xs text-emerald-600 animate-bounce";
+                    setTimeout(() => this.startStage(3), 1200);
+                } else {
+                    this.registerMistake();
+
+                    wrongSlots.forEach(wrongYear => {
+                        const wrongCardId = this.s2State[wrongYear];
+                        this.s2State[wrongYear] = null;
+
+                        const poolCard = document.getElementById(`card-${wrongCardId}`);
+                        if (poolCard) {
+                            poolCard.classList.remove('hidden');
+                            poolCard.classList.add('shake-animation');
+                            setTimeout(() => poolCard.classList.remove('shake-animation'), 500);
+                        }
+
+                        const slotTarget = document.querySelector(`.drop-zone[data-year="${wrongYear}"] .slot-target`);
+                        slotTarget.innerHTML = `<span class="text-slate-400 font-pixel text-[10px] pointer-events-none">LETAK GAMBAR ${wrongYear}</span>`;
+                    });
+
+                    feedbackEl.innerText = `❌ ${correctCount}/4 BETUL. JATA SALAH DIPULANGKAN KE BAWAH!`;
+                    feedbackEl.className = "font-pixel text-xs text-rose-600 animate-pulse";
+                }
+            }
+
+            // STAGE 3 LOGIC (CUBA SAMPAI BETUL + SUSUNAN RAWAK)
+            initStage3() {
+                this.s3Index = 0;
+                this.loadS3Question();
+            }
+
+            loadS3Question() {
+                if (this.s3Index >= this.s3Questions.length) {
+                    this.addScore(300);
+                    this.startStage(4);
+                    return;
+                }
+
+                const data = this.s3Questions[this.s3Index];
+                
+                const cardBox = document.getElementById('s3-card-box');
+                cardBox.classList.remove('stage-fade-in');
+                void cardBox.offsetWidth;
+                cardBox.classList.add('stage-fade-in');
+
+                document.getElementById('s3-counter').innerText = `SOALAN ${this.s3Index + 1}/${this.s3Questions.length}`;
+                document.getElementById('s3-category-tag').innerText = data.category;
+                document.getElementById('s3-prompt').innerText = data.prompt;
+
+                const optionsContainer = document.getElementById('s3-options');
+                optionsContainer.innerHTML = '';
+
+                // Rawakkan susunan options
+                const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "pixel-btn pixel-btn-blue text-xs py-3.5 px-4 text-left w-full leading-relaxed hover:brightness-105 transition-all duration-200";
+                    btn.innerText = opt;
+                    btn.onclick = () => this.answerStage3(opt, data.answer, btn);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+
+            answerStage3(chosen, correct, clickedBtn) {
+                if (clickedBtn.disabled) return;
+
+                if (chosen === correct) {
+                    clickedBtn.classList.remove('pixel-btn-blue');
+                    clickedBtn.classList.add('btn-correct');
+                    
+                    const allBtns = document.querySelectorAll('#s3-options button');
+                    allBtns.forEach(btn => btn.disabled = true);
+
+                    this.addScore(150);
+
+                    setTimeout(() => {
+                        this.s3Index++;
+                        this.loadS3Question();
+                    }, 1000);
+
+                } else {
+                    clickedBtn.classList.remove('pixel-btn-blue');
+                    clickedBtn.classList.add('btn-wrong');
+                    clickedBtn.disabled = true;
+
+                    this.registerMistake();
+                }
+            }
+        }
+
+        const game = new GameEngine();
+    </script>
+</body>
+</html>
